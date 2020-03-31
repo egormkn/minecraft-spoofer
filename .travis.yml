@@ -9,3 +9,35 @@ jobs:
       script: scripts/build-osx.sh
     - os: windows
       script: scripts/build-windows.bat
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: BO63oUsESNPBFw5xTR3wcHTOlv5mH48ldEEET7U+S9XyCgeqG4A8bY1sPPtORoRUb44RhJ+FePvDFoD6OEYSDSf3WEiXa0+yXQIiE8dWVVi/FKOEm0Dr80vgdPJQKX7i7GNuLfyVBNMzUvuJwOEjPRxk4/KXwCo6ZEPgpOoNz43Z0rA9XyeD+yYJXlgbwco3M4PVfbczktVDxLNSvCqDGPU6wjzPvHDEPYgOTnPhxPQIN9IacDHWBDpiVJ73ptbz9bmjCYFqI+Etp1wV4hHXWEr/Jheja+IUq8YtEeFw9yzdbmwIHkgxUZ66wJrZkYbhLCrV0zOmzxYW9mPje7RBZUcjsrMCFBq6usrZ0PdVk/LEfLRS96yaLEmQk9UDiJ93gdxD0lbIu6Gkp74Eog+rYMG1nmFzlgG9f6Y3FxFlsEv1CifjmC+lZ1+a6afFc01k88tQKNLeAAggPC1Uri6G/ZhOwGlnemNJFf7iQ8jPmBE4DwTMtdXG4VhDaDO2NTSvi9GdFuUOGOC4p5bIJjRoczemte9JvKUX55qP1EHb2qX4WX91Bol4Wst1C6rk1j0VNVG/kgOysoqqE6r6hlM2NQk9isL6dVIfgHcxv/mXHc42c4OxOr+nvr27Nw3tfM/K/BB1hStoEnpNCmr8eiqqGsV+X6GPwNZIdj5GRpukaTQ=
+    file: build/minecraft-spoofer-linux
+    skip_cleanup: true
+    on:
+      repo: egormkn/minecraft-spoofer
+      branch: master
+      condition: $TRAVIS_OS_NAME = linux
+      tags: true
+  - provider: releases
+    api_key:
+      secure: BO63oUsESNPBFw5xTR3wcHTOlv5mH48ldEEET7U+S9XyCgeqG4A8bY1sPPtORoRUb44RhJ+FePvDFoD6OEYSDSf3WEiXa0+yXQIiE8dWVVi/FKOEm0Dr80vgdPJQKX7i7GNuLfyVBNMzUvuJwOEjPRxk4/KXwCo6ZEPgpOoNz43Z0rA9XyeD+yYJXlgbwco3M4PVfbczktVDxLNSvCqDGPU6wjzPvHDEPYgOTnPhxPQIN9IacDHWBDpiVJ73ptbz9bmjCYFqI+Etp1wV4hHXWEr/Jheja+IUq8YtEeFw9yzdbmwIHkgxUZ66wJrZkYbhLCrV0zOmzxYW9mPje7RBZUcjsrMCFBq6usrZ0PdVk/LEfLRS96yaLEmQk9UDiJ93gdxD0lbIu6Gkp74Eog+rYMG1nmFzlgG9f6Y3FxFlsEv1CifjmC+lZ1+a6afFc01k88tQKNLeAAggPC1Uri6G/ZhOwGlnemNJFf7iQ8jPmBE4DwTMtdXG4VhDaDO2NTSvi9GdFuUOGOC4p5bIJjRoczemte9JvKUX55qP1EHb2qX4WX91Bol4Wst1C6rk1j0VNVG/kgOysoqqE6r6hlM2NQk9isL6dVIfgHcxv/mXHc42c4OxOr+nvr27Nw3tfM/K/BB1hStoEnpNCmr8eiqqGsV+X6GPwNZIdj5GRpukaTQ=
+    file: build/minecraft-spoofer-windows.exe
+    skip_cleanup: true
+    on:
+      repo: egormkn/minecraft-spoofer
+      branch: master
+      condition: $TRAVIS_OS_NAME = windows
+      tags: true
+  - provider: releases
+    api_key:
+      secure: BO63oUsESNPBFw5xTR3wcHTOlv5mH48ldEEET7U+S9XyCgeqG4A8bY1sPPtORoRUb44RhJ+FePvDFoD6OEYSDSf3WEiXa0+yXQIiE8dWVVi/FKOEm0Dr80vgdPJQKX7i7GNuLfyVBNMzUvuJwOEjPRxk4/KXwCo6ZEPgpOoNz43Z0rA9XyeD+yYJXlgbwco3M4PVfbczktVDxLNSvCqDGPU6wjzPvHDEPYgOTnPhxPQIN9IacDHWBDpiVJ73ptbz9bmjCYFqI+Etp1wV4hHXWEr/Jheja+IUq8YtEeFw9yzdbmwIHkgxUZ66wJrZkYbhLCrV0zOmzxYW9mPje7RBZUcjsrMCFBq6usrZ0PdVk/LEfLRS96yaLEmQk9UDiJ93gdxD0lbIu6Gkp74Eog+rYMG1nmFzlgG9f6Y3FxFlsEv1CifjmC+lZ1+a6afFc01k88tQKNLeAAggPC1Uri6G/ZhOwGlnemNJFf7iQ8jPmBE4DwTMtdXG4VhDaDO2NTSvi9GdFuUOGOC4p5bIJjRoczemte9JvKUX55qP1EHb2qX4WX91Bol4Wst1C6rk1j0VNVG/kgOysoqqE6r6hlM2NQk9isL6dVIfgHcxv/mXHc42c4OxOr+nvr27Nw3tfM/K/BB1hStoEnpNCmr8eiqqGsV+X6GPwNZIdj5GRpukaTQ=
+    file: build/minecraft-spoofer-osx
+    skip_cleanup: true
+    on:
+      repo: egormkn/minecraft-spoofer
+      branch: master
+      condition: $TRAVIS_OS_NAME = osx
+      tags: true
