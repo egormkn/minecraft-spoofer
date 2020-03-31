@@ -1,0 +1,11 @@
+language: c
+
+jobs:
+  include:
+    - os: linux
+      dist: bionic
+      script: scripts/build-linux.sh
+    - os: osx
+      script: scripts/build-osx.sh
+    - os: windows
+      script: scripts/build-windows.bat
