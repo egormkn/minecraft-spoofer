@@ -106,5 +106,5 @@ int main(int argc, char * const argv[]) {
   cout.rdbuf(coutbuf);
   logger.close();
   // Start game
-  return system((command  + " >> " + logger_path).c_str());
+  return system(command.c_str());
 }
