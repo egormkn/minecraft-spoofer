@@ -3,16 +3,21 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 
 #include "json.hpp"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #define PATH_SEPARATOR "\\"
-#define JAVA_EXE "javaw.exe"
+#define JAVA_EXE "java.exe"
 #else
 #define PATH_SEPARATOR "/"
 #define JAVA_EXE "java"
 #endif
+
+#define DEFAULT_ACCESS_TOKEN "0"
+#define DEFAULT_USERNAME "Player"
+#define DEFAULT_UUID "0"
 
 using namespace std;
 using json = nlohmann::json;
@@ -26,7 +31,7 @@ string get_username(const string& game_dir, const string& accessToken, const str
   json profiles_json;
   ifstream profiles(game_dir + PATH_SEPARATOR + "launcher_profiles.json");
   profiles >> profiles_json;
-  string username = "Player";
+  string username = DEFAULT_USERNAME;
   auto authenticationDatabase = profiles_json.find("authenticationDatabase");
   if (authenticationDatabase != profiles_json.end()) {
     for (auto& [key, value] : authenticationDatabase->items()) {
@@ -35,7 +40,7 @@ string get_username(const string& game_dir, const string& accessToken, const str
       cout << "Email: " << email << endl;
       auto jsonAccessToken = value["accessToken"].get<string>();
       cout << "Access token: " << jsonAccessToken << endl;
-      if (jsonAccessToken == accessToken) {
+      if (accessToken == DEFAULT_ACCESS_TOKEN || jsonAccessToken == accessToken) {
         username = email.substr(0, email.find('@'));
         cout << "Setting username: " << username << endl;
         break;
@@ -54,42 +59,51 @@ int main(int argc, char * const argv[]) {
   // Find game directory
   string game_dir = get_directory(args);
   // Create log file
-  ofstream logger(game_dir + PATH_SEPARATOR + "spoofer_log.txt");
+  string logger_path = game_dir + PATH_SEPARATOR + "spoofer_log.txt";
+  ofstream logger(logger_path);
   streambuf *coutbuf = cout.rdbuf();
   cout.rdbuf(logger.rdbuf());
-  cout << "Starting log" << endl << "Running command: " << JAVA_EXE << ' ';
+  cout << "Starting log" << endl << endl << "Original arguments:" << endl;
+  for (auto& arg : args) {
+    cout << arg << endl;
+  }
+  cout << endl << "Running command: " << JAVA_EXE << ' ';
   for (auto& arg : args) {
     cout << arg << ' ';
   }
-  cout << endl;
+  cout << endl << endl;
   // Get user information
   auto username = find(args.begin(), args.end(), "--username");
   if (username == args.end()) {
-    auto launcherClass = find(args.begin(), args.end(), "net.minecraft.launchwrapper.Launch");
-    if (launcherClass != args.end()) username = launcherClass;
+    username = find(args.begin(), args.end(), "net.minecraft.launchwrapper.Launch");
+    cout << "Using legacy username from net.minecraft.launchwrapper.Launch args" << endl;
   }
-  if (username != args.end()) {
-    username = next(username);
-  }
+  if (username != args.end()) username = next(username);
   auto uuid = find(args.begin(), args.end(), "--uuid");
   if (uuid != args.end()) uuid = next(uuid);
   auto accessToken = find(args.begin(), args.end(), "--accessToken");
   if (accessToken != args.end()) accessToken = next(accessToken);
   // Replace username
-  if (username != args.end() && *username == "Player") {
-    string accessTokenString = accessToken == args.end() ? "0" : *accessToken;
-    string uuidString = uuid == args.end() ? "0" : *uuid;
+  if (username != args.end() && *username == DEFAULT_USERNAME) {
+    cout << "Replacing username..." << endl;
+    string accessTokenString = accessToken == args.end() ? DEFAULT_ACCESS_TOKEN : *accessToken;
+    string uuidString = uuid == args.end() ? DEFAULT_UUID : *uuid;
     *username = get_username(game_dir, accessTokenString, uuidString);
   }
   // Build new arguments
   stringstream command_builder;
   auto appender = ostream_iterator<string>(command_builder, " ");
   appender = JAVA_EXE;
+  for_each(args.begin(), args.end(), [](string &arg) {
+    if (arg.find(' ') != std::string::npos) {
+      arg = "\"" + arg + "\"";
+    }
+  });
   copy(args.begin(), args.end(), appender);
   string command = command_builder.str();
-  cout << "Starting: " << command << endl;
+  cout << endl << "Starting: " << command << endl;
   cout.rdbuf(coutbuf);
   logger.close();
   // Start game
-  return system(command.c_str());
+  return system((command  + " >> " + logger_path).c_str());
 }
