@@ -29,11 +29,14 @@ string get_directory(const vector<string>& args) {
 
 string get_username(const string& game_dir, const string& accessToken, const string& uuid) {
   json profiles_json;
-  ifstream profiles(game_dir + PATH_SEPARATOR + "launcher_profiles.json");
+  string profiles_path = game_dir + PATH_SEPARATOR + "launcher_profiles.json";
+  ifstream profiles(profiles_path);
   profiles >> profiles_json;
+  cout << "Parsed json file: " << profiles_path << endl;
   string username = DEFAULT_USERNAME;
   auto authenticationDatabase = profiles_json.find("authenticationDatabase");
   if (authenticationDatabase != profiles_json.end()) {
+    cout << "authenticationDatabase object is found" << endl;
     for (auto& [key, value] : authenticationDatabase->items()) {
       cout << key << " : " << value << endl;
       auto email = value["username"].get<string>();
@@ -46,6 +49,8 @@ string get_username(const string& game_dir, const string& accessToken, const str
         break;
       }
     }
+  } else {
+    cout << "authenticationDatabase object was not found" << endl;
   }
   profiles.close();
   return username;
@@ -66,10 +71,6 @@ int main(int argc, char * const argv[]) {
   cout << "Starting log" << endl << endl << "Original arguments:" << endl;
   for (auto& arg : args) {
     cout << arg << endl;
-  }
-  cout << endl << "Running command: " << JAVA_EXE << ' ';
-  for (auto& arg : args) {
-    cout << arg << ' ';
   }
   cout << endl << endl;
   // Get user information
