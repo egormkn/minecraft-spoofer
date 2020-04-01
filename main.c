@@ -7,8 +7,10 @@
 
 #if defined(WIN32) || defined(_WIN32)
 #define PATH_SEPARATOR "\\"
+#define JAVA_EXE "javaw.exe"
 #else
 #define PATH_SEPARATOR "/"
+#define JAVA_EXE "java"
 #endif
 
 char *read_file(const char *file, size_t *size) {
@@ -84,14 +86,11 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "--username") == 0) {
       username = argv[i + 1];
       username_index = i + 1;
-    }
-    if (strcmp(argv[i], "--gameDir") == 0) {
+    } else if (strcmp(argv[i], "--gameDir") == 0) {
       game_dir = argv[i + 1];
-    }
-    if (strcmp(argv[i], "--accessToken") == 0) {
+    } else if (strcmp(argv[i], "--accessToken") == 0) {
       access_token = argv[i + 1];
-    }
-    if (strcmp(argv[i], "--demo") == 0) {
+    } else if (strcmp(argv[i], "--demo") == 0) {
       demo_index = i;
     }
   }
@@ -134,5 +133,5 @@ int main(int argc, char *argv[]) {
 
   argv[username_index] = nickname;
   argv[demo_index] = "";
-  return execvp("java", argv);
+  return execvp(JAVA_EXE, argv);
 }

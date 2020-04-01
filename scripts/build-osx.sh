@@ -1,4 +1,4 @@
 #!/bin/sh
 
 mkdir build
-clang main.c -Wl,-s -O3 -o build/minecraft-spoofer-osx
+clang main.cpp -Wall -std=c++17 -static -static -static-libstdc++ -static-libgcc -fno-exceptions -O3 -Wl,-s -o build/minecraft-spoofer-osx
