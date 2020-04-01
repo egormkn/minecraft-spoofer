@@ -9,7 +9,7 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #define PATH_SEPARATOR "\\"
-#define JAVA_EXE "java.exe"
+#define JAVA_EXE "javaw.exe"
 #else
 #define PATH_SEPARATOR "/"
 #define JAVA_EXE "java"
