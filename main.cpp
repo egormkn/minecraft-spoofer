@@ -64,7 +64,13 @@ int main(int argc, char * const argv[]) {
   cout << endl;
   // Get user information
   auto username = find(args.begin(), args.end(), "--username");
-  if (username != args.end()) username = next(username);
+  if (username == args.end()) {
+    auto launcherClass = find(args.begin(), args.end(), "net.minecraft.launchwrapper.Launch");
+    if (launcherClass != args.end()) username = launcherClass;
+  }
+  if (username != args.end()) {
+    username = next(username);
+  }
   auto uuid = find(args.begin(), args.end(), "--uuid");
   if (uuid != args.end()) uuid = next(uuid);
   auto accessToken = find(args.begin(), args.end(), "--accessToken");
