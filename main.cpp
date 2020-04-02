@@ -22,28 +22,46 @@
 using namespace std;
 using json = nlohmann::json;
 
-string get_directory(const vector<string>& args) {
+string get_directory(const vector<string> &args) {
   auto gameDir = find(args.begin(), args.end(), "--gameDir");
   return gameDir == args.end() ? "." : *next(gameDir);
 }
 
-string get_username(const string& game_dir, const string& accessToken, const string& uuid) {
+string get_username(const string &game_dir, const string &accessToken,
+                    const string &uuid) {
   json profiles_json;
   string profiles_path = game_dir + PATH_SEPARATOR + "launcher_profiles.json";
   ifstream profiles(profiles_path);
   profiles >> profiles_json;
   cout << "Parsed json file: " << profiles_path << endl;
   string username = DEFAULT_USERNAME;
+  string accountId;
+  auto selectedUser = profiles_json.find("selectedUser");
+  if (selectedUser != profiles_json.end()) {
+    cout << "selectedUser object is found" << endl;
+    auto account = profiles_json.find("account");
+    if (account != profiles_json.end()) {
+      cout << "account object is found" << endl;
+      accountId = account->get<string>();
+    } else {
+      cout << "account object was not found" << endl;
+    }
+  } else {
+    cout << "selectedUser object was not found" << endl;
+  }
   auto authenticationDatabase = profiles_json.find("authenticationDatabase");
   if (authenticationDatabase != profiles_json.end()) {
     cout << "authenticationDatabase object is found" << endl;
-    for (auto& [key, value] : authenticationDatabase->items()) {
+    for (auto &[key, value] : authenticationDatabase->items()) {
       cout << key << " : " << value << endl;
+      if (!accountId.empty() && key != accountId)
+        continue;
       auto email = value["username"].get<string>();
       cout << "Email: " << email << endl;
       auto jsonAccessToken = value["accessToken"].get<string>();
       cout << "Access token: " << jsonAccessToken << endl;
-      if (accessToken == DEFAULT_ACCESS_TOKEN || jsonAccessToken == accessToken) {
+      if (accessToken == DEFAULT_ACCESS_TOKEN || key != accountId ||
+          jsonAccessToken == accessToken) {
         username = email.substr(0, email.find('@'));
         cout << "Setting username: " << username << endl;
         break;
@@ -56,7 +74,7 @@ string get_username(const string& game_dir, const string& accessToken, const str
   return username;
 }
 
-int main(int argc, char * const argv[]) {
+int main(int argc, char *const argv[]) {
   // Get Java arguments
   vector<string> args(argv + 1, argv + argc);
   // Remove demo mode argument
@@ -69,25 +87,31 @@ int main(int argc, char * const argv[]) {
   streambuf *coutbuf = cout.rdbuf();
   cout.rdbuf(logger.rdbuf());
   cout << "Starting log" << endl << endl << "Original arguments:" << endl;
-  for (auto& arg : args) {
+  for (auto &arg : args) {
     cout << arg << endl;
   }
   cout << endl << endl;
   // Get user information
   auto username = find(args.begin(), args.end(), "--username");
   if (username == args.end()) {
-    username = find(args.begin(), args.end(), "net.minecraft.launchwrapper.Launch");
-    cout << "Using legacy username from net.minecraft.launchwrapper.Launch args" << endl;
+    username =
+        find(args.begin(), args.end(), "net.minecraft.launchwrapper.Launch");
+    cout << "Using legacy username from net.minecraft.launchwrapper.Launch args"
+         << endl;
   }
-  if (username != args.end()) username = next(username);
+  if (username != args.end())
+    username = next(username);
   auto uuid = find(args.begin(), args.end(), "--uuid");
-  if (uuid != args.end()) uuid = next(uuid);
+  if (uuid != args.end())
+    uuid = next(uuid);
   auto accessToken = find(args.begin(), args.end(), "--accessToken");
-  if (accessToken != args.end()) accessToken = next(accessToken);
+  if (accessToken != args.end())
+    accessToken = next(accessToken);
   // Replace username
   if (username != args.end() && *username == DEFAULT_USERNAME) {
     cout << "Replacing username..." << endl;
-    string accessTokenString = accessToken == args.end() ? DEFAULT_ACCESS_TOKEN : *accessToken;
+    string accessTokenString =
+        accessToken == args.end() ? DEFAULT_ACCESS_TOKEN : *accessToken;
     string uuidString = uuid == args.end() ? DEFAULT_UUID : *uuid;
     *username = get_username(game_dir, accessTokenString, uuidString);
   }
